@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Rangers: Kids Adventure</title>
+    <style>
+        /* ESTILO MODERNO Y DIVERTIDO */
+        body { 
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
+            background: #4db8ff; /* Azul cielo brillante */
+            background-image: linear-gradient(0deg, #4db8ff 0%, #ffffff 100%);
+            color: #333; 
+            text-align: center; 
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        #game-screen { 
+            max-width: 850px; 
+            margin: 20px auto; 
+            border: 8px solid #fff; 
+            background: rgba(255, 255, 255, 0.8);
+            height: 600px; 
+            position: relative; 
+            border-radius: 40px; /* Bordes muy redondeados */
+            box-shadow: 0 15px 0 #2980b9; /* Sombra estilo 3D */
+            overflow: hidden;
+        }
+
+        h1 { 
+            color: #ffcc00; 
+            text-shadow: 3px 3px 0 #d35400, 5px 5px 0 #000; 
+            font-size: 2.5em;
+            margin: 15px 0;
+        }
+
+        /* ESCENARIO CARTOON */
+        .stage { 
+            height: 320px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: flex-end; 
+            padding: 20px; 
+            background: url('https://img.freepik.com/vector-gratis/paisaje-urbano-dibujos-animados-parque-ciudad-edificios_107791-744.jpg'); /* Fondo de ciudad */
+            background-size: cover;
+            border-bottom: 5px solid #2ecc71; /* Suelo de pasto */
+        }
+
+        .sprite { height: 160px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .sprite img { height: 100%; filter: drop-shadow(5px 5px 0 rgba(0,0,0,0.2)); }
+
+        /* MEGAZORD GIGANTE */
+        #megazord-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 0, 0.3); display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        #megazord-layer img { height: 450px; animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+        /* INTERFAZ AMIGABLE */
+        .ui { background: #fff; padding: 15px; position: absolute; bottom: 0; width: 100%; box-sizing: border-box; }
+        
+        .hp-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .hp-label { font-weight: bold; font-size: 0.8em; margin-bottom: 3px; }
+        .hp-bar { width: 100px; height: 18px; background: #eee; border: 3px solid #333; border-radius: 10px; overflow: hidden; }
+        .hp-fill { height: 100%; background: #2ecc71; width: 100%; transition: 0.5s; }
+
+        /* BOTONES ESTILO JUEGO MÓVIL */
+        .controles button { 
+            padding: 12px 18px; cursor: pointer; font-weight: bold; border-radius: 15px; border: none; margin: 0 5px;
+            box-shadow: 0 5px 0 #999; transition: 0.1s; font-size: 0.9em;
+        }
+        .controles button:active { transform: translateY(4px); box-shadow: 0 1px 0 #999; }
+        
+        #btn-rojo { background: #ff4757; color: white; box-shadow: 0 5px 0 #ff0000; }
+        #btn-azul { background: #2e86de; color: white; box-shadow: 0 5px 0 #0984e3; }
+        #btn-amarillo { background: #f9ca24; color: #000; box-shadow: 0 5px 0 #f0932b; }
+        button:disabled { background: #ccc !important; box-shadow: none !important; opacity: 0.5; }
+
+        #megazord-btn {
+            display: none; background: #eb4d4b; color: white; padding: 15px 30px;
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 50; border-radius: 20px; font-size: 1.2em; border: 4px solid #fff;
+        }
+
+        /* PANTALLA FINAL */
+        #pantalla-final {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 200;
+        }
+        #mensaje-final { font-size: 3.5em; color: #ff9f43; margin-bottom: 20px; -webkit-text-stroke: 2px #000; }
+        .btn-restart { background: #2ecc71; color: white; padding: 15px 40px; border-radius: 20px; font-size: 1.5em; box-shadow: 0 8px 0 #27ae60; }
+    </style>
+</head>
+<body>
+
+    <h1>✨ POWER RANGERS GO! ✨</h1>
+
+    <div id="game-screen">
+        <div id="pantalla-final">
+            <div id="mensaje-final">¡GANASTE!</div>
+            <button class="btn-restart" onclick="location.reload()">¡JUGAR OTRA VEZ!</button>
+        </div>
+
+        <div id="megazord-layer"><img src="megazord.png" alt="MEGAZORD"></div>
+        <button id="megazord-btn" onclick="activarMegazord()">🚀 ¡PODER MEGAZORD! 🚀</button>
+
+        <div class="stage">
+            <div id="s-rojo" class="sprite"><img src="ranger_rojo.png"></div>
+            <div id="s-azul" class="sprite"><img src="ranger_azul.png"></div>
+            <div id="s-amarillo" class="sprite"><img src="ranger_amarillo.png"></div>
+            <div id="s-enemigo" class="sprite" style="height: 200px;"><img src="enemigo.png"></div>
+        </div>
+
+        <div class="ui">
+            <div id="log" style="color: #2980b9; font-weight: bold; margin-bottom: 10px;">¡Elige a tu héroe favorito!</div>
+            <div class="hp-container">
+                <div><div class="hp-label">ROJO</div><div class="hp-bar"><div id="h-rojo" class="hp-fill"></div></div></div>
+                <div><div class="hp-label">AZUL</div><div class="hp-bar"><div id="h-azul" class="hp-fill"></div></div></div>
+                <div><div class="hp-label">AMARILLO</div><div class="hp-bar"><div id="h-amarillo" class="hp-fill"></div></div></div>
+                <div style="margin-left: 20px;"><div class="hp-label" style="color:red">VILLANO</div><div class="hp-bar"><div id="h-enemigo" class="hp-fill" style="background:#ff4757"></div></div></div>
+            </div>
+            <div class="controles">
+                <button id="btn-rojo" onclick="atacar('rojo', 35)">¡SUPER GOLPE!</button>
+                <button id="btn-azul" onclick="atacar('azul', 25)">¡ATAQUE AGUA!</button>
+                <button id="btn-amarillo" onclick="atacar('amarillo', 25)">¡VELOCIDAD!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // La lógica se mantiene igual pero con nombres más amigables
+        let bossHP = 250;
+        let heroes = {
+            rojo: { hp: 100, vivo: true, s: 's-rojo', b: 'btn-rojo' },
+            azul: { hp: 100, vivo: true, s: 's-azul', b: 'btn-azul' },
+            amarillo: { hp: 100, vivo: true, s: 's-amarillo', b: 'btn-amarillo' }
+        };
+
+        function atacar(color, damage) {
+            if (!heroes[color].vivo) return;
+            bloquear(true);
+            const s = document.getElementById(heroes[color].s);
+            s.style.transform = "translateX(100px) scale(1.2)";
+            
+            setTimeout(() => {
+                bossHP -= damage;
+                document.getElementById('s-enemigo').style.filter = "brightness(3) contrast(2)";
+                actualizar();
+                setTimeout(() => {
+                    s.style.transform = "translateX(0) scale(1)";
+                    document.getElementById('s-enemigo').style.filter = "none";
+                    if (bossHP <= 0) fin(true);
+                    else setTimeout(turnoVillano, 600);
+                }, 300);
+            }, 200);
+        }
+
+        function turnoVillano() {
+            let damage = 25;
+            let vivos = Object.keys(heroes).filter(h => heroes[h].vivo);
+            if (vivos.length > 0) {
+                let target = vivos[Math.floor(Math.random() * vivos.length)];
+                heroes[target].hp -= damage;
+                if (heroes[target].hp <= 0) {
+                    heroes[target].hp = 0;
+                    heroes[target].vivo = false;
+                    document.getElementById(heroes[target].s).style.opacity = "0";
+                    document.getElementById(heroes[target].b).disabled = true;
+                }
+                actualizar();
+                if (Object.keys(heroes).filter(h => heroes[h].vivo).length <= 0) fin(false);
+                else {
+                    if (heroes.rojo.hp + heroes.azul.hp + heroes.amarillo.hp < 100) 
+                        document.getElementById('megazord-btn').style.display = "block";
+                    bloquear(false);
+                }
+            }
+        }
+
+        function activarMegazord() {
+            document.getElementById('megazord-btn').style.display = "none";
+            document.getElementById('megazord-layer').style.display = "flex";
+            setTimeout(() => {
+                bossHP -= 150;
+                actualizar();
+                setTimeout(() => {
+                    document.getElementById('megazord-layer').style.display = "none";
+                    if (bossHP <= 0) fin(true);
+                    else bloquear(false);
+                }, 1000);
+            }, 800);
+        }
+
+        function actualizar() {
+            document.getElementById('h-enemigo').style.width = Math.max(0, (bossHP / 250 * 100)) + "%";
+            for (let h in heroes) {
+                document.getElementById('h-' + h).style.width = heroes[h].hp + "%";
+            }
+        }
+
+        function bloquear(b) {
+            for (let h in heroes) if (heroes[h].vivo) document.getElementById(heroes[h].b).disabled = b;
+        }
+
+        function fin(v) {
+            document.getElementById('pantalla-final').style.display = "flex";
+            document.getElementById('mensaje-final').innerText = v ? "¡VICTORIA MÁXIMA!" : "¡INTÉNTALO OTRA VEZ!";
+        }
+    </script>
+</body>
+</html>
